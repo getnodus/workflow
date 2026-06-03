@@ -1,0 +1,45 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Shared Renovate preset for getnodus repositories.",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests",
+    ":dependencyDashboard",
+    ":semanticCommits"
+  ],
+  "minimumReleaseAge": "3 days",
+  "prHourlyLimit": 0,
+  "rebaseWhen": "behind-base-branch",
+  "constraintsFiltering": "strict",
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "Auto-merge non-major updates. Renovate self-merges once checks are green and the stability delay clears (platform auto-merge needs a required check, which not all repos have).",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true,
+      "platformAutomerge": false
+    },
+    {
+      "description": "Batch all non-major npm updates into a single PR. Dozens of individual minor/patch PRs all edit the same lockfile during the 3-day stability window and conflict the moment one merges; one grouped PR has one lockfile change and cannot self-conflict.",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "npm non-major"
+    },
+    {
+      "description": "Bundle all GitHub Actions updates into one PR.",
+      "matchManagers": ["github-actions"],
+      "groupName": "github-actions"
+    },
+    {
+      "description": "Group the Remotion monorepo packages (they version in lockstep, share one package.json).",
+      "matchPackageNames": ["remotion", "@remotion/*"],
+      "groupName": "remotion"
+    },
+    {
+      "description": "Major updates always require manual review.",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "addLabels": ["major-update"]
+    }
+  ]
+}

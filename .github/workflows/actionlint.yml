@@ -1,0 +1,25 @@
+name: actionlint
+
+# Lints workflow files so Renovate (and humans) have a real green signal before
+# merging changes to the actions that power other repos. Mark this check as
+# required in branch protection to gate auto-merge on it.
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run actionlint
+        shell: bash
+        run: |
+          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          ./actionlint -color

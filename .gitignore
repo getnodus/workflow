@@ -1,0 +1,3 @@
+# Conductor workspace scratch — keep the README, ignore the rest.
+.context/*
+!.context/README.md

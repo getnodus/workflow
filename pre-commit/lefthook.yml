@@ -1,0 +1,25 @@
+# Shared lefthook config for getnodus/* repos.
+# Each repo copies this to repo-root `lefthook.yml` (or references via Git submodule).
+#
+# Setup per repo:
+#   pnpm add -D lefthook
+#   npx lefthook install
+#
+# Or install lefthook globally:
+#   brew install lefthook
+#   cd <repo> && lefthook install
+
+pre-commit:
+  parallel: true
+  commands:
+    prettier:
+      glob: '*.{ts,tsx,js,jsx,json,md,yml,yaml,css}'
+      run: pnpm exec prettier --check {staged_files}
+    eslint:
+      glob: '*.{ts,tsx,js,jsx}'
+      run: pnpm exec eslint --max-warnings 0 {staged_files}
+
+pre-push:
+  commands:
+    typecheck:
+      run: pnpm run typecheck --if-present
