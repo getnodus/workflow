@@ -98,13 +98,18 @@ automation.
 
 ## Dependency lane
 
-Do not add dependency automation by default. Add Dependabot only when the repo
-needs scheduled update PRs, and keep it quiet:
+Dependency updates use Renovate via the shared preset. Add a `renovate.json`
+that extends it:
 
-- monthly schedule
-- grouped patch/minor updates
-- one open PR at a time
-- no automatic major version PRs
+```json
+{ "extends": ["github>getnodus/workflow"] }
+```
+
+The preset (`default.json` in this repo) batches non-major npm updates into one
+PR, groups GitHub Actions bumps, pins action digests, enforces a 3-day
+stability window, and self-merges non-major updates once green. Major bumps
+always stay manual. Do not add Dependabot — the two would fight over the same
+lockfile.
 
 ## Conductor lane
 
@@ -116,12 +121,14 @@ do not copy production secrets with broad `.env.*` patterns.
 
 ## Auto-merge
 
-Two opt-in shared workflows exist for narrow auto-merge use:
+There is no general "auto-merge on green" workflow. Dependency auto-merge is
+narrow and bot-only:
 
-- `auto-merge-on-green.yml` — PRs labeled `auto-merge` and authored by the
-  org owner squash-merge when checks pass.
-- `dependabot-auto-merge.yml` — patch/minor Dependabot PRs only.
+- **Renovate** self-merges non-major dependency PRs once green and past the
+  stability window (configured in the shared preset, not a workflow).
+- **`pr-autofix.yml`** (opt-in, called from this repo) enables GitHub
+  auto-merge on a Renovate/Dependabot PR it heals past the stability window.
 
-Neither pushes fixes to human branches, deploys, or mutates workflow, auth,
+Neither merges human-authored PRs, deploys, or mutates workflow, auth,
 billing, migration, secret, or security-sensitive paths. Bots and agents
 otherwise comment, review, open PRs, and stop.
