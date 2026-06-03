@@ -7,20 +7,17 @@ automation quiet, advisory, and easy to understand.
 
 Every repo opens with the same centered, public-facing header: the Nodus mark,
 the repo name, a one-line bold tagline, and a row of `flat-square` badges with a
-black label color. Ship light + dark mark variants (the white-circle mark
-vanishes on GitHub's light theme) and swap them with `<picture>`.
+black label color. Use the single white-circle mark at `100x100` — there is no
+black-background variant.
 
-Copy the mark assets from `getnodus/identity` (`marks/`) into the repo's
-`assets/` so it renders without a cross-repo raw URL (required for private
-repos), then use:
+Copy the mark (`nodus-mark.svg`) from `getnodus/identity` (`marks/`) into the
+repo's `assets/` so it renders without a cross-repo raw URL (required for
+private repos), then use:
 
 ```html
 <div align="center">
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/nodus-mark-dark.svg">
-  <img src="assets/nodus-mark-light.svg" alt="Nodus" width="120" height="120">
-</picture>
+<img src="assets/nodus-mark.svg" alt="Nodus" width="100" height="100">
 
 # repo-name
 
