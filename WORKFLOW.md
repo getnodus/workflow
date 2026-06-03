@@ -8,8 +8,8 @@ or defer to the official GitHub Apps — don't rebuild glue per repo. Org
 
 ## Current shared workflows
 
-All live in `.github/workflows/`. Two are reusable (`workflow_call`) and two
-run directly in this repo.
+All live in `.github/workflows/`. Three are reusable (`workflow_call`); only
+`actionlint.yml` runs directly here.
 
 - **`auto-triage.yml`** (`workflow_call`) — Runs Claude Code on issues labeled
   `auto-triage` to investigate and (when confident) open a draft PR. **Treats
@@ -24,12 +24,14 @@ run directly in this repo.
   PRs. Nothing is merged except a Renovate/Dependabot PR it heals that has
   cleared the stability window, where it enables GitHub auto-merge. Hard-gated
   to non-fork PRs from allowlisted authors (dependency bots + org humans).
-- **`claude.yml`** (direct trigger) — Lets trusted collaborators invoke Claude
-  Code by writing `@claude` in an issue, PR, or review comment. Gated on
-  `author_association` (OWNER / MEMBER / COLLABORATOR) so internet drive-bys
-  can't burn the org's Claude credits or trigger the action with our OAuth
-  token. This is a per-repo workflow: copy it into each repo that wants
-  `@claude`; it is not callable as a reusable workflow.
+- **`claude.yml`** (`workflow_call` + direct) — The heavy `@claude` handler.
+  Trusted collaborators invoke Claude Code by writing `@claude` in an issue,
+  PR, or review comment. Gated on `author_association` (OWNER / MEMBER /
+  COLLABORATOR) so internet drive-bys can't burn the org's Claude credits or
+  trigger the action with our OAuth token. The heavy logic lives here once;
+  other repos add a tiny caller (`uses: getnodus/workflow/.github/workflows/claude.yml@main`)
+  with the event triggers. It also self-serves `@claude` on this repo via its
+  own direct triggers. The caller skeleton is in the file header.
 - **`actionlint.yml`** (direct trigger) — Lints workflow files on PRs that
   touch `.github/workflows/**` so changes to the actions that power other repos
   have a real green signal. Mark it required in branch protection to gate
@@ -124,8 +126,9 @@ GitHub-native automation.
 2. Install/enable the official Codex and Claude GitHub Apps at the org level.
 3. Add `release.yml` only if the repo publishes versions.
 4. Add `deploy.yml` only if the repo deploys production infrastructure.
-5. Wire `claude.yml` (copy it in), `auto-triage.yml`, or `pr-autofix.yml` only
-   if you actually want them; pass `CLAUDE_CODE_OAUTH_TOKEN` explicitly.
+5. Wire `claude.yml`, `auto-triage.yml`, or `pr-autofix.yml` only if you
+   actually want them — add a tiny caller (`uses: getnodus/workflow/...`) and
+   pass `CLAUDE_CODE_OAUTH_TOKEN` explicitly.
 6. Extend the shared Renovate preset: `{ "extends": ["github>getnodus/workflow"] }`.
 7. Remove repo-local custom AI review, cleanup, stale, dependency digest, and
    mixed-purpose bot workflows.

@@ -100,10 +100,10 @@ Two paths exist:
    - `@codex fix the CI failures` — Codex task work on a PR
    - `@claude review` — Claude review
 2. **Workflows in `getnodus/workflow`** for richer Claude Code interactions:
-   - `claude.yml` — repo-local copy lets trusted collaborators write
-     `@claude <anything>` on issues/PRs. Hardened with an
-     `author_association` allowlist; copy from `getnodus/workflow` rather
-     than rolling your own.
+   - `claude.yml` — a tiny caller (`uses: getnodus/workflow/.github/workflows/claude.yml@main`)
+     lets trusted collaborators write `@claude <anything>` on issues/PRs. The
+     heavy logic and the `author_association` allowlist live in
+     `getnodus/workflow`; don't roll your own.
    - `auto-triage.yml` — opt-in via label, opens draft PRs from issues.
      Treats issue bodies as untrusted; pass `CLAUDE_CODE_OAUTH_TOKEN`
      explicitly (never `secrets: inherit`).
