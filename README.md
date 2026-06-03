@@ -1,6 +1,22 @@
+<div align="center">
+
+<img src="assets/nodus-mark.svg" alt="Nodus" width="100" height="100">
+
 # workflow
 
-The shared GitHub automation control plane for the [`getnodus`](https://github.com/getnodus) org.
+**The shared GitHub automation control plane for the [`getnodus`](https://github.com/getnodus) org.**
+<br>
+Reusable workflows, the Renovate preset, and the repo standard — in one place, so the glue isn't rebuilt per repo.
+
+<br>
+
+[![reusable workflows](https://img.shields.io/badge/reusable-workflows-000000?style=flat-square&labelColor=000000)](.github/workflows)
+[![renovate preset](https://img.shields.io/badge/renovate-shared_preset-000000?style=flat-square&labelColor=000000)](default.json)
+[![license](https://img.shields.io/badge/license-Apache--2.0-000000?style=flat-square&labelColor=000000)](LICENSE)
+
+</div>
+
+---
 
 This repo holds the reusable workflows, automation policy, and shared config that
 other `getnodus` repos call or extend — kept in one place so the glue isn't
