@@ -3,6 +3,45 @@
 This is the default shape for repositories in the `getnodus` org. Keep repo
 automation quiet, advisory, and easy to understand.
 
+## README
+
+Every repo opens with the same centered, public-facing header: the Nodus mark,
+the repo name, a one-line bold tagline, and a row of `flat-square` badges with a
+black label color. Ship light + dark mark variants (the white-circle mark
+vanishes on GitHub's light theme) and swap them with `<picture>`.
+
+Copy the mark assets from `getnodus/identity` (`marks/`) into the repo's
+`assets/` so it renders without a cross-repo raw URL (required for private
+repos), then use:
+
+```html
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/nodus-mark-dark.svg">
+  <img src="assets/nodus-mark-light.svg" alt="Nodus" width="120" height="120">
+</picture>
+
+# repo-name
+
+**One-line bold tagline.**
+<br>
+A sentence of context under it.
+
+<br>
+
+[![badge](https://img.shields.io/badge/label-value-000000?style=flat-square&labelColor=000000)](#)
+
+</div>
+
+---
+```
+
+Badge style: `style=flat-square&labelColor=000000`. Keep values black/white;
+use a single Thermal Scope accent (e.g. `DB2F61`) for at most one badge — one
+thermal moment per surface, never decoration. Named "character" repos (e.g.
+agents like Leo) keep their own avatar instead of the shared mark.
+
 ## Pull request CI
 
 PR checks should report useful signal without blocking the owner from merging.
