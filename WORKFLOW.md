@@ -8,7 +8,7 @@ or defer to the official GitHub Apps — don't rebuild glue per repo. Org
 
 ## Current shared workflows
 
-All live in `.github/workflows/`. Three are reusable (`workflow_call`); only
+All live in `.github/workflows/`. Four are reusable (`workflow_call`); only
 `actionlint.yml` runs directly here.
 
 - **`auto-triage.yml`** (`workflow_call`) — Runs Claude Code on issues labeled
@@ -32,6 +32,13 @@ All live in `.github/workflows/`. Three are reusable (`workflow_call`); only
   other repos add a tiny caller (`uses: getnodus/workflow/.github/workflows/claude.yml@main`)
   with the event triggers. It also self-serves `@claude` on this repo via its
   own direct triggers. The caller skeleton is in the file header.
+- **`bugbot-on-failure.yml`** (`workflow_call`) — When CI fails on a PR, posts
+  a `cursor review` comment to trigger Cursor Bugbot analysis. Bugbot is a
+  GitHub App, not an Action — the only programmatic trigger is a PR comment from
+  a real user account. Requires `BUGBOT_PAT` (org secret) from a user with
+  Bugbot enabled; bot-authored comments (`GITHUB_TOKEN`) are silently ignored.
+  Trust-gated to non-fork PRs from allowlisted authors. Includes anti-spam: skips
+  if Bugbot already reviewed within the last hour.
 - **`actionlint.yml`** (direct trigger) — Lints workflow files on PRs that
   touch `.github/workflows/**` so changes to the actions that power other repos
   have a real green signal. Mark it required in branch protection to gate
@@ -68,10 +75,15 @@ Two paths exist and they are not the same:
 1. **Org-level GitHub Apps** for Codex (`@codex review`, `@codex fix the CI
    failures`) and Claude (`@claude review`). These run with the App's own
    identity and are managed at the org level.
-2. **The `claude.yml`, `auto-triage.yml`, and `pr-autofix.yml` workflows in
-   this repo.** These run with `CLAUDE_CODE_OAUTH_TOKEN` (org secret) and the
-   calling repo's permissions. They are tighter to operate but easier to
-   misconfigure — read the file headers before wiring them up in a new repo.
+2. **Cursor Bugbot** — installed via the Cursor dashboard as a GitHub App.
+   Reviews PRs automatically or on `cursor review` / `bugbot run` comments.
+   Customized per-repo via `.cursor/BUGBOT.md` files. The
+   `bugbot-on-failure.yml` workflow automates triggering it when CI fails.
+3. **The `claude.yml`, `auto-triage.yml`, `pr-autofix.yml`, and
+   `bugbot-on-failure.yml` workflows in this repo.** These run with org
+   secrets (`CLAUDE_CODE_OAUTH_TOKEN`, `BUGBOT_PAT`) and the calling repo's
+   permissions. They are tighter to operate but easier to misconfigure — read
+   the file headers before wiring them up in a new repo.
 
 Manual triggers:
 
@@ -79,8 +91,16 @@ Manual triggers:
 - `@codex fix the CI failures` — Codex GitHub App
 - `@claude review` — Claude GitHub App
 - `@claude <anything>` (issue/PR/review comment) — a repo's own `claude.yml`
+- `cursor review` / `bugbot run` (PR comment) — Cursor Bugbot
 
-Do not enable automatic agent reviews by default.
+Automatic triggers:
+
+- Bugbot reviews every PR on open/push (if configured to auto-review).
+- `bugbot-on-failure.yml` posts `cursor review` when CI fails on a trusted PR.
+
+Do not enable automatic agent reviews by default. Bugbot should be set to
+"Run only when mentioned" per-user or per-repo to avoid double-reviewing
+when the CI-failure trigger is active.
 
 ## Org ruleset policy
 
@@ -100,6 +120,10 @@ Checks and AI reviews are advisory. The org owner decides when to merge.
   `auto-triage.yml` / `pr-autofix.yml`. Available as an org secret; make sure
   it is accessible to those repos, and pass it explicitly from caller
   workflows, never via `secrets: inherit`.
+- `BUGBOT_PAT` — a GitHub PAT from a real user account that has Cursor Bugbot
+  enabled. Required by `bugbot-on-failure.yml`. Must be from a human account
+  because Bugbot ignores bot-authored comments (`GITHUB_TOKEN`) for security.
+  Pass explicitly from caller workflows.
 
 Keep product/deploy secrets in the repos that need them. Release automation
 uses the default GitHub Actions token; do not add a standing org service-
@@ -126,13 +150,14 @@ GitHub-native automation.
 2. Install/enable the official Codex and Claude GitHub Apps at the org level.
 3. Add `release.yml` only if the repo publishes versions.
 4. Add `deploy.yml` only if the repo deploys production infrastructure.
-5. Wire `claude.yml`, `auto-triage.yml`, or `pr-autofix.yml` only if you
-   actually want them — add a tiny caller (`uses: getnodus/workflow/...`) and
-   pass `CLAUDE_CODE_OAUTH_TOKEN` explicitly.
-6. Extend the shared Renovate preset: `{ "extends": ["github>getnodus/workflow"] }`.
-7. Remove repo-local custom AI review, cleanup, stale, dependency digest, and
+5. Wire `claude.yml`, `auto-triage.yml`, `pr-autofix.yml`, or
+   `bugbot-on-failure.yml` only if you actually want them — add a tiny caller
+   (`uses: getnodus/workflow/...`) and pass secrets explicitly.
+6. Add `.cursor/BUGBOT.md` with project-specific review rules for Bugbot.
+7. Extend the shared Renovate preset: `{ "extends": ["github>getnodus/workflow"] }`.
+8. Remove repo-local custom AI review, cleanup, stale, dependency digest, and
    mixed-purpose bot workflows.
-8. Avoid CODEOWNERS unless there is a real ownership boundary.
-9. Add `conductor.json` when a repo should be easy to run from Conductor.
-10. Add `.worktreeinclude` only for safe local development files; never broad
+9. Avoid CODEOWNERS unless there is a real ownership boundary.
+10. Add `conductor.json` when a repo should be easy to run from Conductor.
+11. Add `.worktreeinclude` only for safe local development files; never broad
     production secret globs.

@@ -92,14 +92,18 @@ Run the full check only when Fischer or an agent asks for it.
 
 ## Agent integrations
 
-Two paths exist:
+Three paths exist:
 
 1. **Official GitHub Apps** for Codex and Claude, installed at the org level —
    handle the `review`-style triggers:
    - `@codex review` — Codex review
    - `@codex fix the CI failures` — Codex task work on a PR
    - `@claude review` — Claude review
-2. **Workflows in `getnodus/workflow`** for richer Claude Code interactions:
+2. **Cursor Bugbot** — installed via the Cursor dashboard as a GitHub App.
+   Reviews PRs for bugs, security issues, and code quality. Triggered
+   automatically on PR open/push, or manually via `cursor review` / `bugbot run`
+   comments. Customized per-repo via `.cursor/BUGBOT.md` files (see below).
+3. **Workflows in `getnodus/workflow`** for richer agent interactions:
    - `claude.yml` — a tiny caller (`uses: getnodus/workflow/.github/workflows/claude.yml@main`)
      lets trusted collaborators write `@claude <anything>` on issues/PRs. The
      heavy logic and the `author_association` allowlist live in
@@ -107,8 +111,25 @@ Two paths exist:
    - `auto-triage.yml` — opt-in via label, opens draft PRs from issues.
      Treats issue bodies as untrusted; pass `CLAUDE_CODE_OAUTH_TOKEN`
      explicitly (never `secrets: inherit`).
+   - `bugbot-on-failure.yml` — when CI fails on a trusted PR, posts
+     `cursor review` to trigger Bugbot analysis. Requires `BUGBOT_PAT` (org
+     secret from a real user). See the file header for the caller skeleton.
 
-Keep these manual. Do not enable automatic reviews by default.
+Keep manual triggers manual. Set Bugbot to "Run only when mentioned" when
+using the CI-failure trigger to avoid double-reviewing.
+
+## Bugbot configuration
+
+Every repo should have a `.cursor/BUGBOT.md` at the root with project-specific
+review rules. Bugbot always includes the root file and traverses upward from
+changed files to find nested `BUGBOT.md` files for directory-specific context.
+
+```
+project/
+  .cursor/BUGBOT.md          # Always included (project-wide rules)
+  backend/
+    .cursor/BUGBOT.md        # Included when reviewing backend files
+```
 
 ## Branch protection
 

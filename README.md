@@ -30,6 +30,7 @@ GitHub renders specially; *automation* lives here.
 |---|---|
 | `.github/workflows/auto-triage.yml` | Reusable (`workflow_call`) — Claude Code triages labeled issues, opens draft fix PRs. |
 | `.github/workflows/pr-autofix.yml` | Reusable (`workflow_call`) — Claude Code repairs failing/conflicted PRs. |
+| `.github/workflows/bugbot-on-failure.yml` | Reusable (`workflow_call`) — triggers Cursor Bugbot review when CI fails on a PR. |
 | `.github/workflows/claude.yml` | Direct-trigger template — `@claude` mentions on issues/PRs. Copy into a repo to enable. |
 | `.github/workflows/actionlint.yml` | Lints workflow files in this repo. |
 | `WORKFLOW.md` | Automation control-plane policy and security posture. |
