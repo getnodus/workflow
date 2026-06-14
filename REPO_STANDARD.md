@@ -66,8 +66,8 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: '22'
           # cache: pnpm | npm | bun — match the repo's package manager
@@ -92,7 +92,7 @@ Run the full check only when Fischer or an agent asks for it.
 
 ## Agent integrations
 
-Three paths exist:
+Three paths:
 
 1. **Official GitHub Apps** for Codex and Claude, installed at the org level —
    handle the `review`-style triggers:
@@ -100,23 +100,16 @@ Three paths exist:
    - `@codex fix the CI failures` — Codex task work on a PR
    - `@claude review` — Claude review
 2. **Cursor Bugbot** — installed via the Cursor dashboard as a GitHub App.
-   Reviews PRs for bugs, security issues, and code quality. Triggered
-   automatically on PR open/push, or manually via `cursor review` / `bugbot run`
-   comments. Customized per-repo via `.cursor/BUGBOT.md` files (see below).
+   Reviews PRs automatically (Once Per PR mode). Customized per-repo via
+   `.cursor/BUGBOT.md` files. No workflow trigger needed.
 3. **Workflows in `getnodus/workflow`** for richer agent interactions:
    - `claude.yml` — a tiny caller (`uses: getnodus/workflow/.github/workflows/claude.yml@main`)
      lets trusted collaborators write `@claude <anything>` on issues/PRs. The
      heavy logic and the `author_association` allowlist live in
      `getnodus/workflow`; don't roll your own.
-   - `auto-triage.yml` — opt-in via label, opens draft PRs from issues.
-     Treats issue bodies as untrusted; pass `CLAUDE_CODE_OAUTH_TOKEN`
-     explicitly (never `secrets: inherit`).
-   - `bugbot-on-failure.yml` — when CI fails on a trusted PR, posts
-     `cursor review` to trigger Bugbot analysis. Requires `BUGBOT_PAT` (org
-     secret from a real user). See the file header for the caller skeleton.
-
-Keep manual triggers manual. Set Bugbot to "Run only when mentioned" when
-using the CI-failure trigger to avoid double-reviewing.
+   - `pr-autofix.yml` — when CI fails or a PR is conflicted, Claude Code
+     auto-repairs it. Also enables auto-merge for dependency-bot PRs past
+     the stability window. Pass `CLAUDE_CODE_OAUTH_TOKEN` explicitly.
 
 ## Bugbot configuration
 

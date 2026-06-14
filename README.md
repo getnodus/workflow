@@ -28,10 +28,8 @@ GitHub renders specially; *automation* lives here.
 
 | Path | What it is |
 |---|---|
-| `.github/workflows/auto-triage.yml` | Reusable (`workflow_call`) — Claude Code triages labeled issues, opens draft fix PRs. |
 | `.github/workflows/pr-autofix.yml` | Reusable (`workflow_call`) — Claude Code repairs failing/conflicted PRs. |
-| `.github/workflows/bugbot-on-failure.yml` | Reusable (`workflow_call`) — triggers Cursor Bugbot review when CI fails on a PR. |
-| `.github/workflows/claude.yml` | Direct-trigger template — `@claude` mentions on issues/PRs. Copy into a repo to enable. |
+| `.github/workflows/claude.yml` | Reusable (`workflow_call` + direct) — `@claude` mention handler. Copy the caller into a repo to enable. |
 | `.github/workflows/actionlint.yml` | Lints workflow files in this repo. |
 | `WORKFLOW.md` | Automation control-plane policy and security posture. |
 | `REPO_STANDARD.md` | Default shape for `getnodus` repos. |
@@ -46,12 +44,12 @@ GitHub renders specially; *automation* lives here.
 { "extends": ["github>getnodus/workflow"] }
 ```
 
-**Reusable workflow** — e.g. auto-triage:
+**Reusable workflow** — e.g. pr-autofix:
 
 ```yaml
 jobs:
   call:
-    uses: getnodus/workflow/.github/workflows/auto-triage.yml@main
+    uses: getnodus/workflow/.github/workflows/pr-autofix.yml@main
     secrets:
       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 ```
