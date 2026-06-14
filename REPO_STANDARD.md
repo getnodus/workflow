@@ -66,8 +66,8 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: '22'
           # cache: pnpm | npm | bun — match the repo's package manager
@@ -92,23 +92,37 @@ Run the full check only when Fischer or an agent asks for it.
 
 ## Agent integrations
 
-Two paths exist:
+Three paths:
 
 1. **Official GitHub Apps** for Codex and Claude, installed at the org level —
    handle the `review`-style triggers:
    - `@codex review` — Codex review
    - `@codex fix the CI failures` — Codex task work on a PR
    - `@claude review` — Claude review
-2. **Workflows in `getnodus/workflow`** for richer Claude Code interactions:
+2. **Cursor Bugbot** — installed via the Cursor dashboard as a GitHub App.
+   Reviews PRs automatically (Once Per PR mode). Customized per-repo via
+   `.cursor/BUGBOT.md` files. No workflow trigger needed.
+3. **Workflows in `getnodus/workflow`** for richer agent interactions:
    - `claude.yml` — a tiny caller (`uses: getnodus/workflow/.github/workflows/claude.yml@main`)
      lets trusted collaborators write `@claude <anything>` on issues/PRs. The
      heavy logic and the `author_association` allowlist live in
      `getnodus/workflow`; don't roll your own.
-   - `auto-triage.yml` — opt-in via label, opens draft PRs from issues.
-     Treats issue bodies as untrusted; pass `CLAUDE_CODE_OAUTH_TOKEN`
-     explicitly (never `secrets: inherit`).
+   - `pr-autofix.yml` — when CI fails or a PR is conflicted, Claude Code
+     auto-repairs it. Also enables auto-merge for dependency-bot PRs past
+     the stability window. Pass `CLAUDE_CODE_OAUTH_TOKEN` explicitly.
 
-Keep these manual. Do not enable automatic reviews by default.
+## Bugbot configuration
+
+Every repo should have a `.cursor/BUGBOT.md` at the root with project-specific
+review rules. Bugbot always includes the root file and traverses upward from
+changed files to find nested `BUGBOT.md` files for directory-specific context.
+
+```
+project/
+  .cursor/BUGBOT.md          # Always included (project-wide rules)
+  backend/
+    .cursor/BUGBOT.md        # Included when reviewing backend files
+```
 
 ## Branch protection
 
