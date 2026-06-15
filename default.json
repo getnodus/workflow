@@ -5,25 +5,40 @@
     "config:recommended",
     "helpers:pinGitHubActionDigests",
     ":dependencyDashboard",
-    ":semanticCommits"
+    ":semanticCommits",
+    "docker:enableMajor",
+    ":rebaseStalePrs"
   ],
   "minimumReleaseAge": "3 days",
   "prHourlyLimit": 0,
+  "prConcurrentLimit": 10,
   "rebaseWhen": "behind-base-branch",
   "constraintsFiltering": "strict",
   "labels": ["dependencies"],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"],
+    "automerge": true
+  },
+  "osvVulnerabilityAlerts": true,
   "packageRules": [
     {
-      "description": "Auto-merge non-major updates. Renovate self-merges once checks are green and the stability delay clears (platform auto-merge needs a required check, which not all repos have).",
+      "description": "Auto-merge non-major updates once CI is green and stability delay clears.",
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "automerge": true,
       "platformAutomerge": false
     },
     {
-      "description": "Batch all non-major npm updates into a single PR. Dozens of individual minor/patch PRs all edit the same lockfile during the 3-day stability window and conflict the moment one merges; one grouped PR has one lockfile change and cannot self-conflict.",
+      "description": "Batch all non-major npm updates into a single PR to avoid lockfile conflicts.",
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "groupName": "npm non-major"
+    },
+    {
+      "description": "Batch all non-major pnpm updates into a single PR.",
+      "matchManagers": ["pnpm"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "pnpm non-major"
     },
     {
       "description": "Bundle all GitHub Actions updates into one PR.",
@@ -31,13 +46,34 @@
       "groupName": "github-actions"
     },
     {
-      "description": "Group the Remotion monorepo packages (they version in lockstep, share one package.json).",
+      "description": "Group Docker base image updates.",
+      "matchManagers": ["dockerfile"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "docker non-major",
+      "automerge": true
+    },
+    {
+      "description": "Group Python dep updates.",
+      "matchManagers": ["pip_requirements", "pyproject"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "python non-major",
+      "automerge": true
+    },
+    {
+      "description": "Group the Remotion monorepo packages.",
       "matchPackageNames": ["remotion", "@remotion/*"],
       "groupName": "remotion"
     },
     {
       "description": "Major updates always require manual review.",
       "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "addLabels": ["major-update"]
+    },
+    {
+      "description": "Node.js engine updates — manual review only.",
+      "matchPackageNames": ["node"],
+      "matchManagers": ["nodenv", "nvm"],
       "automerge": false,
       "addLabels": ["major-update"]
     }
