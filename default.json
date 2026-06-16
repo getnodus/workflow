@@ -9,7 +9,7 @@
     "docker:enableMajor",
     ":rebaseStalePrs"
   ],
-  "minimumReleaseAge": "3 days",
+  "minimumReleaseAge": "12 hours",
   "prHourlyLimit": 0,
   "prConcurrentLimit": 10,
   "rebaseWhen": "behind-base-branch",
@@ -23,7 +23,7 @@
   "osvVulnerabilityAlerts": true,
   "packageRules": [
     {
-      "description": "Auto-merge non-major updates once CI is green and stability delay clears.",
+      "description": "Auto-merge non-major updates once CI is green and the short stability delay clears.",
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "automerge": true,
       "automergeType": "pr",
@@ -45,6 +45,7 @@
     {
       "description": "Bundle all GitHub Actions updates into one PR.",
       "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "groupName": "github-actions"
     },
     {
