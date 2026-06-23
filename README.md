@@ -28,7 +28,6 @@ GitHub renders specially; *automation* lives here.
 
 | Path | What it is |
 |---|---|
-| `.github/workflows/pr-autofix.yml` | Reusable (`workflow_call`) — Claude Code repairs failing/conflicted PRs. |
 | `.github/workflows/claude.yml` | Reusable (`workflow_call` + direct) — `@claude` mention handler. Copy the caller into a repo to enable. |
 | `.github/workflows/actionlint.yml` | Lints workflow files in this repo. |
 | `WORKFLOW.md` | Automation control-plane policy and security posture. |
@@ -44,12 +43,12 @@ GitHub renders specially; *automation* lives here.
 { "extends": ["github>getnodus/workflow"] }
 ```
 
-**Reusable workflow** — e.g. pr-autofix:
+**Reusable workflow** — e.g. claude:
 
 ```yaml
 jobs:
-  call:
-    uses: getnodus/workflow/.github/workflows/pr-autofix.yml@main
+  claude:
+    uses: getnodus/workflow/.github/workflows/claude.yml@main
     secrets:
       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 ```

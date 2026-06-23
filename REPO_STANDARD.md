@@ -1,7 +1,8 @@
 # getnodus repo standard
 
-This is the default shape for repositories in the `getnodus` org. Keep repo
-automation quiet, advisory, and easy to understand.
+The default shape for repositories in the `getnodus` org. Keep repo automation
+quiet, advisory, and easy to understand. Treat this as principles to apply, not
+a recipe to paste — every repo differs, so match the repo, not the template.
 
 ## README
 
@@ -41,10 +42,45 @@ agents like Leo) keep their own avatar instead of the shared mark.
 
 ## Pull request CI
 
-PR checks should report useful signal without blocking the owner from merging.
-Use one lightweight advisory check for normal PRs. CI is currently inlined
-per-repo (there is no shared CI workflow — `ci-node.yml` was removed after
-nobody adopted it). Match this shape:
+CI is **bespoke per repo** — written for that repo's stack, living in that repo.
+There is no shared CI workflow (`ci-node.yml` was tried and removed when it fit
+nobody). What's constant is the shape, not the commands:
+
+- **Advisory, not blocking.** Report useful signal; don't gate the owner's merge.
+- **Named `CI`**, with `concurrency` cancel-in-progress, `permissions:
+  contents: read`, a `workflow_dispatch` entry, and PR triggers on `main`. The
+  `CI` name matters — other automation keys off it.
+- **Match the stack and derive versions from the repo** — never hardcode a
+  toolchain the repo doesn't pin (`.nvmrc`, `engines`, `Package.swift`).
+- **Run only what exists.** Use the repo's real scripts (`typecheck`, `lint`,
+  `build`, `test`); don't invent script names. One advisory check is fine for a
+  small repo; a matrix or several jobs is fine for a larger one.
+
+Worked shapes — adapt, don't copy blindly:
+
+```yaml
+# Node + npm
+- uses: actions/setup-node@v6
+  with: { node-version-file: .nvmrc, cache: npm }   # or node-version: '24'
+- run: npm ci
+- run: npm run typecheck            # + lint / build / test if they exist
+```
+```yaml
+# Node + pnpm
+- uses: pnpm/action-setup@v4        # or `corepack enable`
+- uses: actions/setup-node@v6
+  with: { node-version-file: .nvmrc, cache: pnpm }
+- run: pnpm install --frozen-lockfile
+- run: pnpm typecheck
+```
+```yaml
+# Swift (SwiftPM)
+runs-on: macos-latest               # xcodebuild instead if there's an .xcodeproj
+- run: swift build
+- run: swift test
+```
+
+Full skeleton for a typical Node repo:
 
 ```yaml
 name: CI
@@ -62,54 +98,44 @@ concurrency:
 jobs:
   typecheck:
     name: Typecheck (advisory)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest          # self-hosted for heavy/trusted builds — see WORKFLOW.md
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: '22'
-          # cache: pnpm | npm | bun — match the repo's package manager
-      - run: <install command>      # pnpm install --frozen-lockfile | npm ci | bun install --frozen-lockfile
-      - run: <typecheck command>    # pnpm typecheck | npm run typecheck
+          node-version-file: .nvmrc
+          cache: npm                # pnpm | npm | bun — match the repo
+      - run: npm ci                 # the repo's real install command
+      - run: npm run typecheck      # the repo's real check(s)
 ```
 
-Product repos that need a full Cloudflare production build should expose it as
-a manual check, not an automatic PR check:
+Heavy builds (large monorepos, the VS Code fork) can use `runs-on: self-hosted`;
+see WORKFLOW.md for the GitHub-hosted-vs-self-hosted trade-off and the
+`server` fleet. Full production builds (e.g. Cloudflare) go behind
+`workflow_dispatch`, not every PR.
 
-```yaml
-on:
-  workflow_dispatch:
-    inputs:
-      check:
-        type: choice
-        options: [typecheck, full-cloudflare]
-        default: typecheck
-```
+## Secret scanning
 
-Run the full check only when Fischer or an agent asks for it.
+Every repo carries a `secret-scan.yml` running the pinned **gitleaks binary**
+(not `gitleaks-action` — it needs a paid license for org-owned repos), scoped to
+PRs + pushes to `main` + tags, with `fetch-depth: 0` and `--redact --exit-code 1`.
 
 ## Agent integrations
 
 Three paths:
 
 1. **Official GitHub Apps** for Codex and Claude, installed at the org level —
-   handle the `review`-style triggers:
-   - `@codex review` — Codex review
-   - `@codex fix the CI failures` — Codex task work on a PR
-   - `@claude review` — Claude review
+   `@codex review`, `@codex fix the CI failures`, `@claude review`.
 2. **Cursor Bugbot** — installed via the Cursor dashboard as a GitHub App.
    Reviews PRs automatically (Once Per PR mode). Customized per-repo via
    `.cursor/BUGBOT.md` files. No workflow trigger needed.
-3. **Workflows in `getnodus/workflow`** for richer agent interactions:
-   - `claude.yml` — a tiny caller (`uses: getnodus/workflow/.github/workflows/claude.yml@main`)
-     lets trusted collaborators write `@claude <anything>` on issues/PRs. The
-     heavy logic and the `author_association` allowlist live in
-     `getnodus/workflow`; don't roll your own.
-   - `pr-autofix.yml` — when CI fails or a PR is conflicted, Claude Code
-     auto-repairs it. Also enables auto-merge for dependency-bot PRs past
-     the stability window. Pass `CLAUDE_CODE_OAUTH_TOKEN` explicitly.
+3. **`claude.yml` in `getnodus/workflow`** — a tiny caller
+   (`uses: getnodus/workflow/.github/workflows/claude.yml@main`) lets trusted
+   collaborators write `@claude <anything>` on issues/PRs. The heavy logic and
+   the `author_association` allowlist live in `getnodus/workflow`; don't roll
+   your own. Pass `CLAUDE_CODE_OAUTH_TOKEN` explicitly.
 
 ## Bugbot configuration
 
@@ -156,10 +182,9 @@ that extends it:
 ```
 
 The preset (`default.json` in this repo) batches non-major npm updates into one
-PR, groups GitHub Actions bumps, pins action digests, enforces a 3-day
-stability window, and self-merges non-major updates once green. Major bumps
-always stay manual. Do not add Dependabot — the two would fight over the same
-lockfile.
+PR, groups GitHub Actions bumps, pins action digests, enforces a stability
+window, and self-merges non-major updates once green. Major bumps always stay
+manual. Do not add Dependabot — the two would fight over the same lockfile.
 
 ## Conductor lane
 
@@ -172,13 +197,9 @@ do not copy production secrets with broad `.env.*` patterns.
 ## Auto-merge
 
 There is no general "auto-merge on green" workflow. Dependency auto-merge is
-narrow and bot-only:
+narrow and bot-only: **Renovate** self-merges non-major dependency PRs once
+green and past the stability window (configured in the shared preset, not a
+workflow). Major bumps stay manual.
 
-- **Renovate** self-merges non-major dependency PRs once green and past the
-  stability window (configured in the shared preset, not a workflow).
-- **`pr-autofix.yml`** (opt-in, called from this repo) enables GitHub
-  auto-merge on a Renovate/Dependabot PR it heals past the stability window.
-
-Neither merges human-authored PRs, deploys, or mutates workflow, auth,
-billing, migration, secret, or security-sensitive paths. Bots and agents
-otherwise comment, review, open PRs, and stop.
+Human-authored PRs are never auto-merged. Bots and agents otherwise comment,
+review, open PRs, and stop — the org owner decides when changes land.
