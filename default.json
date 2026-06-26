@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Shared Renovate preset for getnodus repositories.",
+  "description": "Shared Renovate preset for Intuitum repositories.",
   "extends": [
     "config:recommended",
     "helpers:pinGitHubActionDigests",

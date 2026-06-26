@@ -1,6 +1,6 @@
-# getnodus repo standard
+# Intuitum repo standard
 
-The default shape for repositories in the `getnodus` org. Keep repo automation
+The default shape for repositories in the `Intuitum` org. Keep repo automation
 quiet, advisory, and easy to understand. Treat this as principles to apply, not
 a recipe to paste — every repo differs, so match the repo, not the template.
 
@@ -11,7 +11,7 @@ the repo name, a one-line bold tagline, and a row of `flat-square` badges with a
 black label color. Use the single white-circle mark at `100x100` — there is no
 black-background variant.
 
-Copy the mark (`nodus-mark.svg`) from `getnodus/identity` (`marks/`) into the
+Copy the mark (`nodus-mark.svg`) from `Intuitum/identity` (`marks/`) into the
 repo's `assets/` so it renders without a cross-repo raw URL (required for
 private repos), then use:
 
@@ -124,18 +124,13 @@ PRs + pushes to `main` + tags, with `fetch-depth: 0` and `--redact --exit-code 1
 
 ## Agent integrations
 
-Three paths:
+Two paths:
 
-1. **Official GitHub Apps** for Codex and Claude, installed at the org level —
-   `@codex review`, `@codex fix the CI failures`, `@claude review`.
+1. **Official GitHub Apps** for Codex, installed at the org level —
+   `@codex review`, `@codex fix the CI failures`.
 2. **Cursor Bugbot** — installed via the Cursor dashboard as a GitHub App.
    Reviews PRs automatically (Once Per PR mode). Customized per-repo via
    `.cursor/BUGBOT.md` files. No workflow trigger needed.
-3. **`claude.yml` in `getnodus/workflow`** — a tiny caller
-   (`uses: getnodus/workflow/.github/workflows/claude.yml@main`) lets trusted
-   collaborators write `@claude <anything>` on issues/PRs. The heavy logic and
-   the `author_association` allowlist live in `getnodus/workflow`; don't roll
-   your own. Pass `CLAUDE_CODE_OAUTH_TOKEN` explicitly.
 
 ## Bugbot configuration
 
@@ -165,7 +160,7 @@ product repos.
 ## Release lane
 
 Repos that publish versions inline their own `release.yml` (see
-`getnodus/context/.github/workflows/release.yml` for a working example).
+`Intuitum/context/.github/workflows/release.yml` for a working example).
 There is no shared `release-please.yml` — it was removed after nothing
 ever adopted it.
 
@@ -178,7 +173,7 @@ Dependency updates use Renovate via the shared preset. Add a `renovate.json`
 that extends it:
 
 ```json
-{ "extends": ["github>getnodus/workflow"] }
+{ "extends": ["github>Intuitum/workflow"] }
 ```
 
 The preset (`default.json` in this repo) batches non-major npm updates into one
