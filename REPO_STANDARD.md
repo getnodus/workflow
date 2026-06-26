@@ -1,6 +1,6 @@
-# Intuitum repo standard
+# Intuitumxyz repo standard
 
-The default shape for repositories in the `Intuitum` org. Keep repo automation
+The default shape for repositories in the `Intuitumxyz` org. Keep repo automation
 quiet, advisory, and easy to understand. Treat this as principles to apply, not
 a recipe to paste — every repo differs, so match the repo, not the template.
 
@@ -11,7 +11,7 @@ the repo name, a one-line bold tagline, and a row of `flat-square` badges with a
 black label color. Use the single white-circle mark at `100x100` — there is no
 black-background variant.
 
-Copy the mark (`nodus-mark.svg`) from `Intuitum/identity` (`marks/`) into the
+Copy the mark (`nodus-mark.svg`) from `Intuitumxyz/identity` (`marks/`) into the
 repo's `assets/` so it renders without a cross-repo raw URL (required for
 private repos), then use:
 
@@ -160,7 +160,7 @@ product repos.
 ## Release lane
 
 Repos that publish versions inline their own `release.yml` (see
-`Intuitum/context/.github/workflows/release.yml` for a working example).
+`Intuitumxyz/context/.github/workflows/release.yml` for a working example).
 There is no shared `release-please.yml` — it was removed after nothing
 ever adopted it.
 
@@ -173,7 +173,7 @@ Dependency updates use Renovate via the shared preset. Add a `renovate.json`
 that extends it:
 
 ```json
-{ "extends": ["github>Intuitum/workflow"] }
+{ "extends": ["github>Intuitumxyz/workflow"] }
 ```
 
 The preset (`default.json` in this repo) batches non-major npm updates into one

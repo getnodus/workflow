@@ -1,4 +1,4 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>Intuitum/workflow"]
+  "extends": ["github>Intuitumxyz/workflow"]
 }

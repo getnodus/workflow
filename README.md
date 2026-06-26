@@ -4,7 +4,7 @@
 
 # workflow
 
-**The shared GitHub automation control plane for the [`Intuitum`](https://github.com/Intuitum) org.**
+**The shared GitHub automation control plane for the [`Intuitumxyz`](https://github.com/Intuitumxyz) org.**
 <br>
 Reusable workflows, the Renovate preset, and the repo standard — in one place, so the glue isn't rebuilt per repo.
 
@@ -19,9 +19,9 @@ Reusable workflows, the Renovate preset, and the repo standard — in one place,
 ---
 
 This repo holds the reusable workflows, automation policy, and shared config that
-other `Intuitum` repos call or extend — kept in one place so the glue isn't
+other `Intuitumxyz` repos call or extend — kept in one place so the glue isn't
 rebuilt per repo. Org *identity* (profile, issue templates, community health
-files) stays in [`Intuitum/.github`](https://github.com/Intuitum/.github), which
+files) stays in [`Intuitumxyz/.github`](https://github.com/Intuitumxyz/.github), which
 GitHub renders specially; *automation* lives here.
 
 ## What's here
@@ -30,8 +30,8 @@ GitHub renders specially; *automation* lives here.
 |---|---|
 | `.github/workflows/actionlint.yml` | Lints workflow files in this repo. |
 | `WORKFLOW.md` | Automation control-plane policy and security posture. |
-| `REPO_STANDARD.md` | Default shape for `Intuitum` repos. |
-| `default.json` | Shared Renovate preset. Repos extend it via `github>Intuitum/workflow`. |
+| `REPO_STANDARD.md` | Default shape for `Intuitumxyz` repos. |
+| `default.json` | Shared Renovate preset. Repos extend it via `github>Intuitumxyz/workflow`. |
 | `pre-commit/lefthook.yml` | Shared lefthook hooks (prettier + eslint + typecheck). |
 
 ## Using it from another repo
@@ -39,7 +39,7 @@ GitHub renders specially; *automation* lives here.
 **Renovate** — in `renovate.json`:
 
 ```json
-{ "extends": ["github>Intuitum/workflow"] }
+{ "extends": ["github>Intuitumxyz/workflow"] }
 ```
 
 **Pre-commit hooks** — see [`pre-commit/README.md`](pre-commit/README.md).

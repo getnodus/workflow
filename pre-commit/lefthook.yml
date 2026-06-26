@@ -1,4 +1,4 @@
-# Shared lefthook config for Intuitum/* repos.
+# Shared lefthook config for Intuitumxyz/* repos.
 # Each repo copies this to repo-root `lefthook.yml` (or references via Git submodule).
 #
 # Setup per repo:
