@@ -1,4 +1,4 @@
-# Pre-commit hooks for getnodus/*
+# Pre-commit hooks for Intuitumxyz/*
 
 Shared [lefthook](https://github.com/evilmartians/lefthook) config that runs prettier + eslint on staged files before commit, and typecheck before push.
 
@@ -11,7 +11,7 @@ Catches lint/format/typecheck errors locally so they don't burn a `@claude` or `
 ```sh
 cd /path/to/repo
 pnpm add -D lefthook
-curl -o lefthook.yml https://raw.githubusercontent.com/getnodus/workflow/main/pre-commit/lefthook.yml
+curl -o lefthook.yml https://raw.githubusercontent.com/Intuitumxyz/workflow/main/pre-commit/lefthook.yml
 npx lefthook install
 ```
 

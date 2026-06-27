@@ -4,7 +4,7 @@
 
 # workflow
 
-**The shared GitHub automation control plane for the [`getnodus`](https://github.com/getnodus) org.**
+**The shared GitHub automation control plane for the [`Intuitumxyz`](https://github.com/Intuitumxyz) org.**
 <br>
 Reusable workflows, the Renovate preset, and the repo standard — in one place, so the glue isn't rebuilt per repo.
 
@@ -19,20 +19,19 @@ Reusable workflows, the Renovate preset, and the repo standard — in one place,
 ---
 
 This repo holds the reusable workflows, automation policy, and shared config that
-other `getnodus` repos call or extend — kept in one place so the glue isn't
+other `Intuitumxyz` repos call or extend — kept in one place so the glue isn't
 rebuilt per repo. Org *identity* (profile, issue templates, community health
-files) stays in [`getnodus/.github`](https://github.com/getnodus/.github), which
+files) stays in [`Intuitumxyz/.github`](https://github.com/Intuitumxyz/.github), which
 GitHub renders specially; *automation* lives here.
 
 ## What's here
 
 | Path | What it is |
 |---|---|
-| `.github/workflows/claude.yml` | Reusable (`workflow_call` + direct) — `@claude` mention handler. Copy the caller into a repo to enable. |
 | `.github/workflows/actionlint.yml` | Lints workflow files in this repo. |
 | `WORKFLOW.md` | Automation control-plane policy and security posture. |
-| `REPO_STANDARD.md` | Default shape for `getnodus` repos. |
-| `default.json` | Shared Renovate preset. Repos extend it via `github>getnodus/workflow`. |
+| `REPO_STANDARD.md` | Default shape for `Intuitumxyz` repos. |
+| `default.json` | Shared Renovate preset. Repos extend it via `github>Intuitumxyz/workflow`. |
 | `pre-commit/lefthook.yml` | Shared lefthook hooks (prettier + eslint + typecheck). |
 
 ## Using it from another repo
@@ -40,17 +39,7 @@ GitHub renders specially; *automation* lives here.
 **Renovate** — in `renovate.json`:
 
 ```json
-{ "extends": ["github>getnodus/workflow"] }
-```
-
-**Reusable workflow** — e.g. claude:
-
-```yaml
-jobs:
-  claude:
-    uses: getnodus/workflow/.github/workflows/claude.yml@main
-    secrets:
-      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+{ "extends": ["github>Intuitumxyz/workflow"] }
 ```
 
 **Pre-commit hooks** — see [`pre-commit/README.md`](pre-commit/README.md).
